@@ -57,6 +57,20 @@ Jenkins’ Web UI is served over HTTP/HTTPS, by default on port **8080**. :conte
 
 ## Install and run
 
-```bash
-chmod +x setup-jenkins-ec2.sh
+---
+# 🔧 Git-Switch
+# For Linux 🐧
+```
+wget https://raw.githubusercontent.com/PhilipMello/jenkins/refs/heads/main/jenkins_setup.sh && chmod +x jenkins_setup.sh
+```
+
+OR
+
+```
+wget https://raw.githubusercontent.com/PhilipMello/jenkins/refs/heads/main/jenkins_setup.sh && chmod +x jenkins_setup.sh && sudo mv jenkins_setup.sh /usr/bin/
+```
+
+RUN:
+```
 sudo ./setup-jenkins-ec2.sh
+```
