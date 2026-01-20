@@ -12,14 +12,14 @@ The script installs a supported **Java runtime**, configures the official **Jenk
 ## What the script does
 
 ### On Ubuntu/Debian
-- Installs prerequisites and **OpenJDK 21 JRE**
+- Installs prerequisites and **OpenJDK 17 JRE**
 - Adds the Jenkins **debian-stable (LTS)** APT repo and signing key
 - Installs `jenkins` via `apt`
 - Enables and starts the `jenkins` systemd service :contentReference[oaicite:1]{index=1}
 
 ### On Amazon Linux / RHEL-family
 - Adds the Jenkins **redhat-stable (LTS)** YUM/DNF repo and signing key
-- Installs **Java 21** (`java-21-openjdk`) or (if available) **Amazon Corretto 21**
+- Installs **Java 17** (`java-17-openjdk`) or (if available) **Amazon Corretto 21**
 - Installs `jenkins` via `yum`/`dnf`
 - Enables and starts the `jenkins` systemd service :contentReference[oaicite:2]{index=2}
 
@@ -148,4 +148,34 @@ java -version
   - Confirm Jenkins is listening:
 ```bash
 sudo ss -lntp | grep 8080 || true
-``
+```
+
+### Common service commands
+
+Check status:
+```bash
+sudo systemctl status jenkins --no-pager
+```
+
+Restart:
+```bash
+sudo systemctl restart jenkins
+```
+
+Stop / start:
+```bash
+sudo systemctl stop jenkins
+sudo systemctl start jenkins
+```
+
+View recent logs:
+```bash
+sudo journalctl -u jenkins -n 200 --no-pager
+```
+
+Jenkins provides guidance on managing systemd services and overrides.
+
+Confirm Jenkins is listening:
+```bash
+sudo ss -lntp | grep 8080 || true
+```
