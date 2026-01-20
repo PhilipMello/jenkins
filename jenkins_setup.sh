@@ -2,6 +2,7 @@
 set -euo pipefail
 
 JENKINS_PORT="${JENKINS_PORT:-8080}"
+JAVA_VERSION="17"
 
 log() { printf "\n[setup-jenkins] %s\n" "$*"; }
 die() { printf "\n[setup-jenkins] ERROR: %s\n" "$*" >&2; exit 1; }
@@ -23,9 +24,9 @@ detect_os() {
 }
 
 install_jenkins_debian_like() {
-  log "Detected Debian/Ubuntu. Installing Java (OpenJDK 21) and prerequisites..."
+  log "Detected Debian/Ubuntu. Installing Java (OpenJDK $JAVA_VERSION) and prerequisites..."
   apt-get update -y
-  apt-get install -y ca-certificates curl gnupg fontconfig openjdk-21-jre
+  apt-get install -y ca-certificates curl gnupg fontconfig openjdk-$JAVA_VERSION-jre
 
   log "Adding Jenkins LTS apt repository..."
   install -d -m 0755 /etc/apt/keyrings
@@ -59,13 +60,13 @@ install_jenkins_redhat_like() {
     "https://pkg.jenkins.io/redhat-stable/jenkins.repo"
   rpm --import "https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key"
 
-  log "Installing Java 21 and dependencies..."
+  log "Installing Java $JAVA_VERSION and dependencies..."
   # Prefer Amazon Corretto on Amazon Linux if available; otherwise OpenJDK.
-  if "$pm" -y install fontconfig java-21-amazon-corretto >/dev/null 2>&1; then
-    log "Installed Amazon Corretto 21."
+  if "$pm" -y install fontconfig java-$JAVA_VERSION-amazon-corretto >/dev/null 2>&1; then
+    log "Installed Amazon Corretto $JAVA_VERSION."
   else
-    "$pm" -y install fontconfig java-21-openjdk
-    log "Installed OpenJDK 21."
+    "$pm" -y install fontconfig java-$JAVA_VERSION-openjdk
+    log "Installed OpenJDK $JAVA_VERSION."
   fi
 
   log "Installing Jenkins..."
