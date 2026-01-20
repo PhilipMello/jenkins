@@ -32,15 +32,13 @@ If a host firewall is detected and active:
 
 ---
 
-## Why Java 21?
-
-Jenkins supports specific Java LTS versions, and modern Jenkins releases support Java 21 (with guidance for upgrading/running on it). :contentReference[oaicite:3]{index=3}
+## Java 17
 
 ---
 
 ## Files
 
-- `setup-jenkins-ec2.sh` — main installation script
+- `jenkins_setup.sh` — main installation script
 
 ---
 
@@ -58,8 +56,7 @@ Jenkins’ Web UI is served over HTTP/HTTPS, by default on port **8080**. :conte
 ## Install and run
 
 ---
-# 🔧 Git-Switch
-# For Linux 🐧
+## For Linux 🐧
 ```
 wget https://raw.githubusercontent.com/PhilipMello/jenkins/refs/heads/main/jenkins_setup.sh && chmod +x jenkins_setup.sh
 ```
@@ -72,5 +69,83 @@ wget https://raw.githubusercontent.com/PhilipMello/jenkins/refs/heads/main/jenki
 
 RUN:
 ```
-sudo ./setup-jenkins-ec2.sh
+sudo ./jenkins_setup.sh
 ```
+
+## After installation:
+
+- Jenkins runs as a systemd service named `jenkins`
+- Verify status:
+```bash
+sudo systemctl status jenkins --no-pager
+```
+
+## Access Jenkins
+
+### Open in a browser:
+```bash
+http://localhost:8080
+```
+## Unlock Jenkins (initial admin password)
+```bash
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+`Note:` This is the standard path used by Jenkins’ initial setup wizard.
+
+### Configuration
+Environment variables
+
+The script supports:
+- JENKINS_PORT (default: 8080)
+`Note:` JENKINS_PORT in this script is used to open the host firewall port (ufw/firewalld). It does not reconfigure the Jenkins service port by itself. Jenkins defaults to port 8080.
+
+Example:
+```bash
+sudo JENKINS_PORT=8080 ./jenkins_setup.sh
+```
+
+Changing Jenkins port (optional)
+
+If you need Jenkins to listen on a different port because 8080 is in use, Jenkins documents using a systemd override with `JENKINS_PORT`.
+
+Example (change to 8081):
+```bash
+sudo systemctl edit jenkins
+```
+Add:
+```ìni
+[Service]
+Environment="JENKINS_PORT=8081"
+```
+Then:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart jenkins
+```
+
+### Security recommendations (production)
+
+- Do not expose port 8080 to the public Internet (0.0.0.0/0) unless you have a strong reason and compensating controls.
+- Prefer a reverse proxy (Nginx/Apache) with TLS on 443 and restrict 8080 to localhost or a private subnet.
+- Keep the instance patched and limit SSH access.
+
+Jenkins’ Web UI is a network-exposed service (default 8080), so treat it like any other admin surface.
+
+### Troubleshooting
+Jenkins service won’t start
+
+1. Check logs:
+```bash
+sudo journalctl -u jenkins -n 200 --no-pager
+```
+
+2. Confirm Java version:
+```bash
+java -version
+```
+3. Port conflict: Jenkins notes how to change the listening port if 8080 is in use.
+- Can’t reach Jenkins from your browser
+  - Confirm Jenkins is listening:
+```bash
+sudo ss -lntp | grep 8080 || true
+``
